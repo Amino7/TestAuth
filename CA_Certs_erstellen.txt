@@ -1,0 +1,25 @@
+CA erstellen:
+	
+	Private Key erstellen(anschließend Passwort angeben und merken, es wird beim erstellen von Zertifikaten benötigt):
+		openssl genrsa -des3 -out myCA.key 2048
+	
+	Root Zertifikat erstellen(Metadaten optinal, wichtig "Common Name", diesen sieht man in der Liste von CAs):
+		openssl req -x509 -new -nodes -key myCA.key -sha256 -days 36500 -out myCA.pem
+
+	dieses Root Zertifikat muss in die Browser etc geladen werden
+
+
+einzelne signierte Zertifikate erstellen:
+
+	private Key erstellen:
+		openssl genrsa -out localhost.key 2048
+
+	CSR erstellen:
+		openssl req -new -key localhost.key -out localhost.csr
+
+	Config file mit Endung .ext erstellen, ist in der Mail mit bei(Localhost.ext),
+	hier die DNS bzw. IP Adressen eintragen für welche das Zertifikat gelten soll
+
+	Zertifikat erstellen(Metadaten optional):
+	- wir benötigen die CSR, Private Key vom CA, Root Zertifikat, und die Config File
+		openssl x509 -req -in localhost.csr -CA myCA.pem -CAkey myCA.key -CAcreateserial -out localhost.crt -days 36500 -sha256 -extfile localhost.ext
