@@ -243,6 +243,11 @@ app.get('/destroy', function (req, res) {
   });
 });
 
+app.get('/alexa',(req,res) =>{
+  res.send('kommt noch...');
+  console.log("alexa hat auf mich zugegriffen!")
+})
+
 
 
 
