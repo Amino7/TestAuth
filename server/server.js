@@ -16,7 +16,10 @@ const configAuth = require('./config/auth.js');
 const csrf = require('csurf');
 const RateLimit = require('express-rate-limit');
 
+const alexa = require('./routes/alexa');
 
+
+// middleware config
 
 passport.use(new FacebookStrategy({
         // pull in our app id and secret from our auth.js file
@@ -94,7 +97,7 @@ app.use(session({
   genid: (req) => {
     return uuid() // use UUIDs for session IDs
   },                   // TODO: ttl macht nichts?
-  store: new FileStore({ttl: 20,
+  store: new FileStore({ttl: 5,
                         path: "./sessions",
                         reapInterval: 30
                         }),
@@ -109,7 +112,7 @@ app.use(session({
     // ohne zeitbegrenzung wird cookie beim beenden der
     // browsersitzung gelöscht -aber funzt nicht so gut
     // evtl für Internet Explorer zusätzlich expires setzen
-    maxAge: 1000  * 60 * 5,
+    maxAge: 1000  * 60 * 30,
     httpOnly: true,
     secure: true
   },
@@ -139,7 +142,9 @@ app.use( function( req, res, next ) {
   next();
 } ) ;
 
-app
+// routes
+
+app.use('/alexa',alexa);
 
 // create the homepage route at '/', it has a form post to test against csfr
 app.get('/', (req, res) => {
@@ -176,10 +181,6 @@ app.post('/entry',createAccountLimiter, (req, res) => {
   res.send(`CSRF token used: ${req.body._csrf}, Message received: ${req.body.message}`);
 });
 
-// create the login get and post routes
-app.get('/login', (req, res) => {
-  res.send(`You got the login page!\n`)
-})
 
 app.get('/facebook', (req,res) =>{
     res.send('<a href="/auth/facebook">Login with Facebook</a><br>'+
@@ -223,7 +224,7 @@ app.post('/login', (req, res, next) => {
 app.get('/authrequired', (req, res) => {
   if(req.isAuthenticated()) {
     res.send('you hit the authentication endpoint\n'+
-             '<br><a href="/authrequired">check if you are logged in</a>'+
+             '<br><a href="/authrequired">check if you are still logged in</a>'+
              '<br><a href="/destroy">log out</a>');
 
   } else {
@@ -242,14 +243,6 @@ app.get('/destroy', function (req, res) {
     }
   });
 });
-
-app.get('/alexa',(req,res) =>{
-  res.send('kommt noch...');
-  console.log("alexa hat auf mich zugegriffen!")
-})
-
-
-
 
 
 
